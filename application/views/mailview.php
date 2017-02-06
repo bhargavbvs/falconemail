@@ -1,184 +1,574 @@
-<?php 
-
-if(!isset($_SESSION)) 
-    { 
-        session_start(); 
-    } 
-
+<?php
+if (!isset($_SESSION)) {
+    session_start();
+}
 ?>
+<!DOCTYPE html>
+<html xmlns:height="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Falcon Mail</title>
+    <base href="http://localhost/falconemail/index.php/mail/"/>
+    <link rel='stylesheet prefetch' href='http://localhost/falconemail/style/css/email.css'>
+    <link rel='stylesheet prefetch' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <title>Sent</title>
+</head>
+<body>
 
-<!doctype html>
-<html><body>
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<div class="container">
+    <div class="mail-box">
+        <aside class="sm-side">
+            <div class="user-head">
+                <div class="user-name">
+                    <h5><a href="#"><?php echo $_SESSION['username']; ?></a></h5>
+                    <span><a href="#"><?php echo $_SESSION['useremail']; ?></a></span>
+                </div>
 
-<button type="button" id = "Inbox" onclick="taketo('Inbox')">Inbox</button>
+            </div>
 
-<button type="button" onclick="taketo('Sent')">Sent</button>
 
-<button type="button" onclick="taketo('Drafts')">Drafts</button>
+            <div class="inbox-body">
+                <a href="#myModal" data-toggle="modal" title="Compose" class="btn btn-compose">
+                    Compose
+                </a>
+                <!-- Modal -->
+                <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="myModal"
+                     class="modal fade" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button aria-hidden="true" data-dismiss="modal" class="close" onclick="composeEmail('1')"
+                                        type="button">×
+                                </button>
+                                <h4 class="modal-title">Compose</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="compose/<?php echo $source; ?>" role="form"
+                                      class="form-horizontal" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">To</label>
+                                        <div class="col-lg-10">
+                                            <input type="text" placeholder="" name="email" id="email"
+                                                   class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Cc / Bcc</label>
+                                        <div class="col-lg-10">
+                                            <input type="text" placeholder="" id="cc" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Message</label>
+                                        <div class="col-lg-10">
+                                            <textarea rows="10" cols="30" class="form-control" name="body"
+                                                      id="body"></textarea>
+                                        </div>
+                                    </div>
 
-<button type="button" onclick="taketo('Trash')">Trash</button>
+                                    <div class="form-group">
+                                        <div class="col-lg-offset-2 col-lg-10">
+                                                      <span class="btn green fileinput-button">
+                                                        <i class="fa fa-plus fa fa-white"></i>
+                                                          <label for="attachment">Attachment</label>
+                                                        <input type="file" id="attachment" name="attachment[]" multiple>
+                                                      </span>
+                                            <button class="btn btn-send" type="submit"
+                                            ">
+                                            Send
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal-dialog -->
+                </div><!-- /.modal -->
+            </div>
 
-<button type="button" onclick="taketo('Trash')">Move To Trash</button>
 
-<br/>
+            <ul class="inbox-nav inbox-divider">
+                <li <?php
+                if ($source == '1') {
+                    echo "class='active'";
+                } ?>>
+                    <a href="inbox"><i class="fa fa-inbox"></i> Inbox </a>
 
-<table  bgcolor="#C0C0C0" id='myTable'>
+                </li>
+                <li <?php
+                if ($source == '2') {
+                    echo "class='active'";
+                } ?>>
+                    <a href="sent"><i class="fa fa-envelope-o"></i> Sent Mail</a>
+                </li>
+                <li <?php
+                if ($source == '3') {
+                    echo "class='active'";
+                } ?>>
+                    <a href="drafts"><i class=" fa fa-external-link"></i> Drafts </a>
+                </li>
+                <li <?php
+                if ($source == '4') {
+                    echo "class='active'";
+                } ?>>
+                    <a href="trash"><i class=" fa fa-trash-o"></i> Trash</a>
+                </li>
+            </ul>
+            <div class="inbox-body text-center">
+            </div>
 
-        <tbody id="data"  data-link="row" class="rowlink">
+        </aside>
+        <div class="lg-side">
+            <div class="inbox-head">
+                <h3>Sent</h3>
+                <form action="#" class="pull-right position">
+                    <div class="input-append">
+                        <input type="text" class="sr-input" placeholder="Search Mail">
+                        <button class="btn sr-btn" type="button"><i class="fa fa-search"></i></button>
+                    </div>
+                </form>
+            </div>
 
-          <?php
-          if ($message) {
-              $i = 1;
-              $jsonarray = json_decode($message);
-              // echo var_dump($jsonarray);
-              $mail_data = $jsonarray->data;
-              // foreach ($mail_data as $mail) {
-                  // echo $mail->user_id;
-              	?>
+            <div class="inbox-body">
+                <div class="modal-header">
+                    <button class="btn" type="submit"
+                            onclick="location.href='http://localhost/falconemail/index.php/mail/<?php
+                            if ($source == 1) {
+                                echo 'inbox';
+                            } elseif ($source == 2) {
+                                echo 'sent';
+                            } elseif ($source == 3) {
+                                echo 'drafts';
+                            } elseif ($source == 4) {
+                                echo 'trash';
+                            }
+                            ?>'">Back
+                    </button>
 
-              	<tr><br />
+                    <?php if($source != 3){?>
 
-              <td >
-              	<a href= "#">
-    				<div style="height:100%;width:100%">
-      					<?php echo $mail_data[0]->subject?>
-   					 </div
-  				</a>
-  				</td>
+                    <a href="#myModa" data-toggle="modal" title="Forward" class="btn btn-forward">
+                        Forward
+                    </a>
+                    <!-- Modal -->
+                    <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="myModa"
+                         class="modal fade" style="display: none;">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button aria-hidden="true" data-dismiss="modal" class="close"
+                                            onclick="composeEmail('1')" type="button">×
+                                    </button>
+                                    <h4 class="modal-title">Forward</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" action="forward/<?php echo $source; ?>" role="form"
+                                          class="form-horizontal" enctype="multipart/form-data">
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">To</label>
+                                            <div class="col-lg-10">
+                                                <input type="text" placeholder="" name="email" id="email"
+                                                       class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">Message</label>
+                                            <div class="col-lg-10">
+                                                <textarea rows="10" cols="30" class="form-control" name="body"
+                                                          id="body"></textarea>
+                                            </div>
+                                        </div>
+                                        <?php
+                                        $jsonarray = json_decode($message);
+                                        $mail_data = $jsonarray->data;
+                                        foreach ($mail_data as $mail) {
+                                            if (sizeof($mail->cc_emails) > 0) {
+                                                foreach ($mail->cc_emails as $cc_email) {
+                                                    echo '
+                                                        <div class="form-group">
+                                                        <input type="hidden" id="data" name="data[]" class="form-control" value="' . $cc_email->inbox_id . '" />
+                                                        </div>';
+                                                }
+                                            } else {
+                                                echo '
+                    <div class="form-group">
+                    <input type="hidden" id="data" name="data[]" class="form-control" value="' . $mail->inbox_id . '" />
+                    </div>';
+                                            }
+                                        }
+                                        ?>
 
-              <!-- <a href="" </a></td> -->
-              
-              	<td><?php echo $mail_data[0]->date ?></td>
+                                        <button class="btn btn-send" type="submit">
+                                            Send
+                                        </button>
 
-            </tr>
+                                    </form>
 
-            <tr> 
 
-            <td><?php echo $mail_data[0]->body ?></td>
-            </tr>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
 
-            <tr>
+                    <button class="btn btn-delete" type="submit" onclick='  moveToTrash(
+                    <?php
+                    if($source == 1) {
+                        $jsonarray = json_decode($message);
+                        $mail_data = $jsonarray->data;
+                        foreach ($mail_data as $mail) {
+                            $inbox_ids = array();
+                            if (sizeof($mail->cc_emails) > 0) {
+
+                                foreach ($mail->cc_emails as $cc_email) {
+                                    array_push($inbox_ids, $cc_email->inbox_id);
+                                }
+                                echo json_encode($inbox_ids);
+                            } else {
+                                array_push($inbox_ids, $mail->inbox_id);
+                                echo json_encode($inbox_ids);
+                            }
+                        }
+                    }elseif($source == 2 ){
+                        $jsonarray = json_decode($message);
+                        $mail_data = $jsonarray->data;
+                        foreach ($mail_data as $mail) {
+                            $sent_ids = array();
+                            if (sizeof($mail->cc_emails) > 0) {
+
+                                foreach ($mail->cc_emails as $cc_email) {
+                                    array_push($sent_ids, $cc_email->sent_id);
+                                }
+                                echo json_encode($sent_ids);
+                            } else {
+                                array_push($sent_ids, $mail->sent_id);
+                                echo json_encode($sent_ids);
+                            }
+                        }
+                    }
+
+                    echo ",";
+                       echo $source; ?>     )'>Delete
+                    </button>
+
+                    <?php } else{ ?>
+                    <a href="#myModa" data-toggle="modal" title="Resend" class="btn btn-send">
+                        Resend
+                    </a>
+                    <!-- Modal -->
+                    <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="myModa"
+                         class="modal fade" style="display: none;">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button aria-hidden="true" data-dismiss="modal" class="close" type="button"
+                                            onclick="composeEmail('1')" type="button">×
+                                    </button>
+                                    <h4 class="modal-title">Forward</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" action="compose/3/<?php echo $message_id;?>" role="form"
+                                          class="form-horizontal" enctype="multipart/form-data">
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">To</label>
+                                            <div class="col-lg-10">
+                                                <input type="text" placeholder="" name="email" id="email"
+                                                       class="form-control" value="<?php
+                                                $jsonarray = json_decode($message);
+                                                $mail_data = $jsonarray->data;
+                                                foreach ($mail_data as $mail) {
+                                                    echo $mail->to_email;
+                                                }
+                                                ?>">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">Subject</label>
+                                            <div class="col-lg-10">
+                                                <input type="text" placeholder="" id="subject" name="subject" class="form-control"
+                                                       required value="<?php
+                                                $jsonarray = json_decode($message);
+                                                $mail_data = $jsonarray->data;
+                                                foreach ($mail_data as $mail) {
+                                                    echo $mail->subject;
+                                                }
+                                                ?>">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">Message</label>
+                                            <div class="col-lg-10">
+                                                <textarea rows="10" cols="30" class="form-control" name="body"
+                                                          id="body" ><?php echo $mail->body;?></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <div class="col-lg-offset-2 col-lg-10">
+                                                      <span class="btn green fileinput-button">
+                                                        <i class="fa fa-plus fa fa-white"></i>
+                                                          <label for="attachment">Attachment</label>
+                                                        <input type="file" id="attachment" name="attachment[]" multiple>
+                                                      </span>
+                                                <button class="btn btn-send" type="submit" name = "send" id = "send"
+                                                        onClick="submitform();this.disabled=true;this.value='Submitting...'">
+                                                    Send
+                                                </button>
+                                            </div>
+                                        </div>
+
+                    </form>
+
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+                    <?php } ?>
+
+                </div>
+            </div>
 
             <?php
-              // $i++;
-              // }
+            if ($message) {
+//                        echo $message;
+            $jsonarray = json_decode($message);
+            $mail_data = $jsonarray->data;
+            foreach ($mail_data as $mail) {
+            ?>
 
-              }
+            <div class="mail" style="margin-left:20px;">
+                <div class="mail-container">
+                    <br>
+                    <h4 class="subject"><?php echo $mail->subject; ?></h4>
+                    <h5><i class="from"></i> <?php
 
-         
-          ?>
-        </tbody>
-      </table>
+                        if ($source == '2') {
+                            echo "to   ";
+                            $size = sizeof($mail->cc_emails);
+                            if ($size > 0) {
+                                $i = $size - 1;
+                                foreach ($mail->cc_emails as $cc_email) {
+                                    echo " ";
+                                    echo $cc_email->email_address;
+                                    if ($i) {
+                                        $i--;
+                                        echo ",";
+                                    }
+                                }
+                            } else {
+                                echo $mail->to_username;
+                            }
+                        } elseif ($source == '1') {
+                            echo "from   ";
+                            $size = sizeof($mail->cc_emails);
+                            if ($size > 0) {
+                                $i = $size - 1;
+                                foreach ($mail->cc_emails as $cc_email) {
+                                    echo " ";
+                                    echo $cc_email->email_address;
+                                    if ($i) {
+                                        $i--;
+                                        echo ",";
+                                    }
+                                }
+                            } else {
+                                echo $mail->from_username;
+                            }
+                        }elseif ($source == '3') {
+                            echo "to   ";
+                            echo $mail->to_email;
 
-      <br />	
+                        };
+                        ; ?></h5>
+
+                    <hr>
+                    <p><?php echo $mail->body; ?></p>
+
+                    <?php
+                    if($source != 3) {
+                        if (sizeof($mail->attachments) > 0) { ?>
+                            <hr>
+                            <h5 class="subject">Attachments:</h5>
+                            <?php
+                            foreach ($mail->attachments as $attachment) {
+                                if ($attachment->file_name != null) {
+                                    ?>
+                                    <div class="col-md-4">
+                                        <iframe src="http://localhost/falconemail/attachments/<?php echo $attachment->file_name; ?>"
+                                                style="width:160px; height:100px;" frameborder="0"></iframe>
+
+                                        <form method="get" target="_blank"
+                                              action="http://localhost/falconemail/attachments/<?php echo $attachment->file_name; ?>">
+                                            <button class="btn btn-download" type="submit">Download</button>
+                                        </form>
+                                    </div>
 
 
-      <form ><br /> 
+                                <?php }
+                            }
+                        }
+                    }?>
 
-Reply : <br /> <input type="text" id="reply" style="width: 300px; height: 80px;"/><br /><br />
+                </div>
 
-</form>
+                <?php
+                if($source != 3) {
+                    if (sizeof($mail->replies) > 0) {
+                        $i = 20;
+                        foreach ($mail->replies as $reply) {
+                            ?>
 
-<input type="button" value="Send" onclick="reply()" /><br /><br />
+                            <div class="col-md-12">
+
+                                <div class="mailview" style="margin-left:<?php echo $i; ?>px;">
+                                    <div class="mail-container">
+                                        <br>
+                                        <h5><i class="from"></i> <?php
+                                            if ($source == '2') {
+                                                echo $reply->email_address;
+                                                echo "   says at   ";
+                                                $php_timestamp_date = date("m/d/Y", strtotime($mail->received_date));
+                                                echo "" . $php_timestamp_date . "";
+                                            } elseif ($source == '1') {
+                                                echo $reply->email_address;
+                                                echo "   says at   ";
+                                                $php_timestamp_date = date("m/d/Y", strtotime($mail->received_date));
+                                                echo "" . $php_timestamp_date . "";
+                                            }; ?></h5>
+
+                                        <p><?php echo $reply->body; ?></p>
+                                        <hr>
+                                        <?php if ($reply->attachments) {
+                                            foreach ($reply->attachments as $attachment) {
+                                                if ($attachment->file_name != null) {
+                                                    ?>
+
+                                                    <div class="col-md-4">
+                                                        <h5 class="subject">Attachments:</h5>
+                                                        <iframe src="http://localhost/falconemail/attachments/<?php echo $attachment->file_name; ?>"
+                                                                style="width:160px; height:100px;" frameborder="0"
+                                                                frameborder="0"></iframe>
+                                                        <form method="get" target="_blank"
+                                                              action="http://localhost/falconemail/attachments/<?php echo $attachment->file_name; ?>">
+                                                            <button class="btn btn-download" type="submit">Download
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                <?php }
+                                            }
+                                        } ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                            $i = $i + 20;
+                        }
+                    }
+                }
+                ?>
+
+                <?php
+                }
+                }
+                ?>
 
 
+            </div>
+            <?php if($source != 3) {?>
+            <div class="col-md-12">
+                <div class="reply">
+                    <hr>
 
+                    <form method="post" action="reply/<?php echo $source; ?>/<?php echo $message_id; ?>" role="form"
+                          class="form-horizontal"
+                          enctype="multipart/form-data">
+                        <h5 class="subject">Reply</h5>
+                        <div class="form-group">
+                            <div class="col-lg-10">
+                                <textarea class="form-control" id="reply" name="reply"></textarea>
+                            </div>
+                        </div>
 
-<button type="button" onclick="trash('Trash')">Take to Trash</button>
-      
+                        <?php
 
-<script>
-    function taketo(parameter) {
+                            if (sizeof($mail->cc_emails) > 0) {
+                                foreach ($mail->cc_emails as $cc_email) {
+                                    echo '
+                    <div class="form-group">
+                    <input type="hidden" id="data" name="data[]" class="form-control" value="' . $cc_email->inbox_id . '" />
+                    </div>';
+                                }
+                            } else {
+                                echo '
+                    <div class="form-group">
+                    <input type="hidden" id="data" name="data[]" class="form-control" value="' . $mail->inbox_id . '" />
+                    </div>';
+                            }
 
-    location.href = "http://localhost/falconemail/index.php/" + parameter;
-	}
- </script>
+                        ?>
+                        <div class="form-group">
+                            <div class="col-lg-offset-2 col-lg-10">
+                                                      <span class="btn green fileinput-button">
+                                                        <i class="fa fa-plus fa fa-white"></i>
+                                                        <label for="attachment">Attachment</label>
+                                                        <input type="file" id="attachment" name="attachment[]"
+                                                               multiple>
+                                                      </span>
+                                <button class="btn btn-send" type="submit"
+                                        onClick="submitform();this.disabled=true;this.value='Submitting...'">Send</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <?php }?>
+                <div>
+                </div>
 
- <script>
- 	
- 	function reply() {
- 		var subject = <?php echo"'"; echo $mail_data[0]->subject; echo "'"; ?>;
-    var body = document.getElementById('reply').value;
-    var touserid =  <?php echo"'"; echo $mail_data[0]->user_id; echo "'"; ?>;
-    var message_id = <?php echo"'"; echo $message_id; echo "'"; ?>;
+                </aside>
+            </div>
+        </div>
 
-      // var user_id = <?php echo "'"; echo "green"; echo "'"; ?>;
+        <script>
+            function moveToTrash(inbox_ids, source) {
 
+                console.log(inbox_ids);
 
-    console.log(message_id);
+                $.ajax({
+                    type: "POST",
+                    data: {
+                        inbox_ids: inbox_ids,
+                        source:source
+                    },
+                    dataType: "JSON",
+                    url: "http://localhost/falconbackend/v1/mt",
+                    error: function (data, jqXHR, textStatus, errorThrown) {
+                        console.log(textStatus + ': ' + errorThrown);
+                    },
+                    success: function (data) {
+                        console.log("successs");
+                        window.location = 'http://localhost/falconemail/index.php/mail/<?php echo "sent";?>';
+                    }
 
-    
-    $.ajax({
-        type:"POST",
-        data:{
-          subject:subject,
-          body:body,
-          touserid:touserid,
-          userid: <?php echo "'"; echo $_SESSION['userid']; echo "'";?>,
-          message_id: message_id
-        },
-        dataType:"JSON",
-        url:"http://localhost/falconbackend/v1/reply",
-        error: function(data, jqXHR, textStatus, errorThrown) {
-          // console.log(textStatus + ': ' + errorThrown);
-        },
-        success: function(data){
-
-            console.log("successs");  
-            if(!data.error){
-              // location.href = "http://localhost/falconemail/index.php/Inbox";
-        }
-             return true;
+                });
+                console.log(email);
             }
-      });
-      return false;
-
-	}
+        </script>
 
 
-	
- </script>
+        <script>
 
-  <script>
-  
-  function trash() {
-    var message_id = <?php echo"'"; echo $message_id; echo "'"; ?>;
-
-      // var user_id = <?php echo "'"; echo "green"; echo "'"; ?>;
-
-
-    console.log(message_id);
-
-    
-    $.ajax({
-        type:"POST",
-        data:{
-          userid: 1,
-          message_id: message_id
-        },
-        dataType:"JSON",
-        url:"http://localhost/falconbackend/v1/mt",
-        error: function(data, jqXHR, textStatus, errorThrown) {
-          // console.log(textStatus + ': ' + errorThrown);
-        },
-        success: function(data){
-
-            console.log("successs");  
-            if(!data.error){
-              location.href = "http://localhost/falconemail/index.php/Sent";
+            function submitform() {
+                var f = document.getElementsByTagName('email');
+                if(f.checkValidity()) {
+                    f.submit();
+                } else {
+                    alert(document.getElementById('email').validationMessage);
+                }
             }
-             return true;
-            }
-      });
-      return false;
 
-  }
+        </script>
 
-
-  
- </script>
-
-
-</body></html>
+</body>
+</html>

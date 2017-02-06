@@ -41,7 +41,7 @@ Email : <input type="text" id="email"/><br /><br />
         success: function(data){
 
               if(data.userid != null){
-                send_user_id(data.userid);
+                send_user_id(data.userid, username, email);
               }
              return true;
         }
@@ -51,14 +51,18 @@ Email : <input type="text" id="email"/><br /><br />
 
     }
 
-    function send_user_id(user_id) {
+    function send_user_id(user_id,username, useremail) {
       var userid = user_id;
       
       console.log(userid);
+      console.log(username);
+      console.log(useremail);
       $.ajax({
         type:"POST",
         data:{
-          userid:userid
+          userid:userid,
+          username:username,
+          useremail:useremail
         },
         dataType:"JSON",
         url:"http://localhost/falconemail/index.php/Login/get_user_id",
@@ -66,10 +70,8 @@ Email : <input type="text" id="email"/><br /><br />
           console.log(textStatus + ': ' + errorThrown);
         },
         success: function(data){
-
             console.log("success");
-
-            location.href = "http://localhost/falconemail/index.php/Inbox";
+            location.href = "http://localhost/falconemail/index.php/Mail";
              return true;
         }
       

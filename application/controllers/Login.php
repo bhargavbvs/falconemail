@@ -4,15 +4,14 @@ class Login extends CI_Controller {
 
 	public function __construct(){
 		parent::__construct();
-		session_write_close();
 
-		if(!isset($_SESSION)) 
-    { 
-        session_start(); 
-    } 
+		if(!isset($_SESSION))
+    {
+        session_start();
+    }
 		if(!empty($_SESSION["userid"])){
 			$this->load->helper('url');
-			redirect('Inbox');
+			redirect('mail');
 		}
 	}
 
@@ -23,8 +22,13 @@ class Login extends CI_Controller {
 	public function get_user_id(){
 		if($this->input->is_ajax_request()){
 			if(!empty($_POST)){
-				$userid=$_POST['userid'];
-				$_SESSION["userid"] = $userid;
+				$user_id = $_POST['userid'];
+				$user_name = $_POST['username'];
+                $user_email = $_POST['useremail'];
+
+                $_SESSION["userid"] = $user_id;
+                $_SESSION["username"] = $user_name;
+                $_SESSION["useremail"] = $user_email;
 				echo '{"error": false}';
 			}
 			else{
